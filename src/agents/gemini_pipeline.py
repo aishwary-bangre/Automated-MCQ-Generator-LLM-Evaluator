@@ -44,7 +44,7 @@ def run_agent_2(educator_output: EducatorOutput, client: genai.Client):
 def generate_mcq_pipeline(topic: str):
     print(f"Retrieving context for: {topic}")
     context = retrieve_context(topic, n_results=2)
-    client = genai.Client(http_options={'timeout': 60.0})
+    client = genai.Client()
     print("Agent 1 (Educator) generating question...")
     educator_out, e_in, e_out = run_agent_1(topic, context, client)
     print("Agent 2 (Specialist) generating distractors...")
