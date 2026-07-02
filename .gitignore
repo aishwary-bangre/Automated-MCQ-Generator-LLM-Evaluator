@@ -1,0 +1,31 @@
+# Virtual Environment
+venv/
+env/
+.env
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Streamlit
+.streamlit/credentials.toml
+
+# Vector Database (Do not push local vector store to GitHub)
+data/chroma_db/
+*.sqlite3
+
+# HuggingFace Caches & Local Models (Must be generated locally, do not push!)
+D:/huggingface_cache/
+.cache/
+
+# IDE & Editor files
+.vscode/
+.cursor/
+.idea/
+*.swp
+*.swo
+
+# Evaluation Logs
+Project_Problem_Statement.txt

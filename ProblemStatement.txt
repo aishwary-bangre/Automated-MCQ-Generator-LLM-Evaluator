@@ -1,0 +1,42 @@
+Problem Statement: Multi-Agent Class 10 Math Question Generator & LLM Benchmarking Pipeline
+
+Overview
+The goal is to build an automated educational content pipeline that generates high-quality, curriculum-grounded mathematics MCQs for Class 10. The system leverages Retrieval-Augmented Generation (RAG) to anchor questions in official textbook chapters, utilizes a multi-agent framework to engineer realistic diagnostic distractors based on student misconceptions, and runs a programmatic benchmarking suite to evaluate open-source versus commercial model performance.
+
+Objective
+Design and implement a Python backend and local evaluation framework that:
+- Ingests specific Class 10 Math NCERT textbook chapters into a local vector store via RAG (using Gemini as an OCR pre-processor for LaTeX math formulas).
+- Orchestrates a multi-agent generation pipeline to create math MCQs and misconception-driven distractors.
+- Executes parallel generation across a local open-source model (Qwen2.5-0.5B-Instruct) and a cloud-based commercial model (Gemini 3.5 Flash).
+- Programmatically benchmarks both models across accuracy, latency, and token cost via an interactive Streamlit dashboard.
+
+Scope of Work
+1. Target Curriculum & Local RAG Module
+- Target Scope: Class 10 Mathematics (Chapters: Quadratic Equations, Arithmetic Progressions, Coordinate Geometry, Probability).
+- Parse these specific textbook PDFs into clean text/LaTeX chunks using Gemini Vision.
+- Generate vector embeddings using sentence-transformers (all-MiniLM-L6-v2) and store them in a local ChromaDB instance.
+- Implement semantic search to retrieve relevant mathematical formulas and concepts based on user-selected topics.
+
+2. Multi-Agent Generation Framework
+- Agent 1 (The Educator): Consumes the retrieved curriculum text from ChromaDB and generates a clear, structurally sound math question along with the correct answer.
+- Agent 2 (The Student Misconception Specialist): Analyzes the correct question/answer pair and generates exactly three logical incorrect options (distractors) modeled on verified student errors.
+- Enforce structured output formatting using custom JSON parsing and regex sanitization to ensure both LLMs strictly output clean JSON (Question, Options, Correct Answer, Diagnostic Explanation).
+
+3. Dual-Model Execution & Benchmarking Suite
+- Route the generation prompt payload to run on two parallel execution paths:
+  - Local Execution: Qwen2.5-0.5B-Instruct loaded via HuggingFace transformers in fp16.
+  - Cloud API Execution: Groq API.
+- Build an evaluation script that triggers generation and programmatically records:
+  - Inference Latency: Total execution time per generation.
+  - Token Efficiency: Compute input/output token counts.
+  - Quality/Accuracy Score: Run an "LLM-as-a-judge" prompt using Groq (Llama 3.3 70B) to evaluate whether the generated questions match the retrieved curriculum context (Scoring Hallucination, Logic, and Plausibility).
+
+4. Interface & Output Delivery
+- A clean Streamlit web dashboard that allows users to select math sub-topics via a Syllabus Mapper.
+- Displays the resulting generated MCQs and explanations side-by-side for direct comparison.
+- Highlights the LLM-as-a-judge metrics and real-time execution telemetry on the UI.
+
+Constraints
+- Edge Hardware Execution: The local model must run efficiently inside the constraints of a 4GB VRAM GPU (GTX 1650).
+- Deterministic Schemas: The LLM outputs must be strictly parsed despite the tendency of smaller local models to output erratic escape characters.
+- Frameworks: Built strictly using Python, ChromaDB, HuggingFace transformers, Google GenAI SDK, and Streamlit.

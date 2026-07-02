@@ -1,0 +1,22 @@
+# Core RAG & LLM
+google-genai
+groq
+chromadb
+sentence-transformers
+PyMuPDF
+python-dotenv
+transformers
+accelerate
+bitsandbytes
+
+# Data Validation
+pydantic
+
+# UI & Data Handling (For future phases)
+streamlit
+pandas
+plotly
+
+# Local Model Execution (For future phases)
+torch
+transformers
