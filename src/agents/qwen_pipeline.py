@@ -60,56 +60,38 @@ def generate_chat(system_prompt: str, user_prompt: str, max_tokens: int = 500):
     return tokenizer.decode(new_tokens, skip_special_tokens=True), input_tokens, output_tokens
 
 def extract_json_from_text(text: str) -> dict:
-    """Extract the first valid JSON object from text using brace counting."""
-    # Small models stubbornly output LaTeX math with \( and \), which breaks standard JSON parsing.
-    # We sanitize these backslashes here before attempting to parse.
+    import re
+    import json
+    
+    # 1. Clean common LaTeX block issues
     text = text.replace(r'\(', '(').replace(r'\)', ')')
     text = text.replace(r'\[', '[').replace(r'\]', ']')
     
-    start = text.find('{')
-    if start == -1:
+    # 2. Find anything that looks like { ... }
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if not match:
         raise ValueError(f"No JSON found in output: {text[:200]}")
-    
-    depth = 0
-    in_string = False
-    escape_next = False
-    for i in range(start, len(text)):
-        ch = text[i]
-        if escape_next:
-            escape_next = False
-            continue
-        if ch == '\\':
-            escape_next = True
-            continue
-        if ch == '"':
-            in_string = not in_string
-            continue
-        if in_string:
-            continue
-        if ch == '{':
-            depth += 1
-        elif ch == '}':
-            depth -= 1
-            if depth == 0:
-                candidate = text[start:i+1]
-                try:
-                    return json.loads(candidate)
-                except json.JSONDecodeError:
-                    break
-    
-    # Fallback: try to repair truncated JSON by fixing unclosed quotes
-    import ast
-    try:
-        # A simple regex to just find anything that looks like a dictionary and parse it
-        fragment = text[start:]
-        # try to cut it off at the last }
-        last_brace = fragment.rfind('}')
-        if last_brace != -1:
-            return json.loads(fragment[:last_brace+1])
-    except:
-        pass
         
-    raise ValueError(f"Failed to parse JSON from output: {text}")
+    fragment = match.group(0)
+    
+    # 3. Aggressively sanitize the fragment to force it into valid JSON
+    # Replace all backslashes with double backslashes for valid escaping
+    clean = fragment.replace('\\', '\\\\')
+    # Re-fix valid escapes that got double-escaped
+    clean = clean.replace('\\\\"', '\\"')
+    clean = clean.replace('\\\\n', '\\n')
+    # Remove literal newlines which crash JSON strings
+    clean = clean.replace('\n', ' ')
+    
+    try:
+        return json.loads(clean)
+    except Exception as e:
+        # Fallback: AST literal eval (handles Python-like dicts)
+        import ast
+        try:
+            return ast.literal_eval(fragment)
+        except:
+            raise ValueError(f"Failed to parse JSON from output: {fragment}")
 
 def run_local_agent_1(topic: str, context: str):
     """Agent 1: Educator Pipeline on local GPU model"""
