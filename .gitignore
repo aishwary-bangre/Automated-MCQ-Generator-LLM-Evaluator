@@ -33,3 +33,5 @@ data/logs/
 resume.md
 
 Final_ProblemStatement.txt
+
+#.\venv\Scripts\python.exe -m streamlit run app/main.py

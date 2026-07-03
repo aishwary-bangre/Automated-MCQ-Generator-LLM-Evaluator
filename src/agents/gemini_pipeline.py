@@ -10,7 +10,7 @@ from src.agents.schemas import EducatorOutput, SpecialistOutput, FinalMCQ
 load_dotenv()
 
 def run_agent_1(topic: str, context: str, client: genai.Client):
-    system_instruction = "You are an expert Math Educator. You must output ONLY valid JSON."
+    system_instruction = "You are an expert Math Educator. You must output ONLY valid JSON. IMPORTANT: Wrap ALL mathematical expressions, equations, and variables in single dollar signs for inline markdown rendering (e.g., $x = 5$ or $\\frac{1}{2}$)."
     prompt = f'Using the provided textbook context, you MUST generate a math question specifically focused on the sub-topic: "{topic}".\nDo NOT generate a generic question. The question must test the student\'s knowledge of "{topic}".\n\nContext:\n{context}\n\nOutput JSON format:\n{{\n  "question": "your math question here",\n  "correct_answer_text": "the correct answer here",\n  "explanation": "step-by-step solution here"\n}}'
 
     response = client.models.generate_content(
@@ -26,7 +26,7 @@ def run_agent_1(topic: str, context: str, client: genai.Client):
     return EducatorOutput(**data), response.usage_metadata.prompt_token_count, response.usage_metadata.candidates_token_count
 
 def run_agent_2(educator_output: EducatorOutput, client: genai.Client):
-    system_instruction = "You are an expert in student misconceptions. You must output ONLY valid JSON."
+    system_instruction = "You are an expert in student misconceptions. You must output ONLY valid JSON. IMPORTANT: Wrap ALL mathematical expressions, equations, and variables in single dollar signs for inline markdown rendering (e.g., $x = 5$ or $\\frac{1}{2}$)."
     prompt = f'Generate 3 plausible wrong answers for this math question based on common mistakes.\n\nQuestion: {educator_output.question}\nCorrect Answer: {educator_output.correct_answer_text}\n\nOutput JSON format:\n{{\n  "distractors": [\n    {{"distractor_text": "wrong 1", "misconception": "reason 1"}},\n    {{"distractor_text": "wrong 2", "misconception": "reason 2"}},\n    {{"distractor_text": "wrong 3", "misconception": "reason 3"}}\n  ]\n}}'
 
     response = client.models.generate_content(
