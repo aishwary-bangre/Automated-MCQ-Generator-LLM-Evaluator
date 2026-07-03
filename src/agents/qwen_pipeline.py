@@ -95,7 +95,7 @@ def extract_json_from_text(text: str) -> dict:
 
 def run_local_agent_1(topic: str, context: str):
     """Agent 1: Educator Pipeline on local GPU model"""
-    system = "You are an expert Math Educator. You output ONLY valid JSON, no markdown, no other text. IMPORTANT: Do not use LaTeX or backslashes for math. Use plain text."
+    system = "You are an expert Math Educator. You output ONLY valid JSON, no markdown, no other text. IMPORTANT: Wrap ALL mathematical expressions and variables in single dollar signs (e.g., $x = 5$ or $\\frac{1}{2}$)."
     
     user = f"""Using the provided textbook context, you MUST generate a math question specifically focused on the sub-topic: "{topic}".
 Do NOT generate a generic question. The question must test the student's knowledge of "{topic}".
@@ -122,7 +122,7 @@ Generate the JSON object for "{topic}" now:"""
 
 def run_local_agent_2(educator_output: EducatorOutput):
     """Agent 2: Specialist Pipeline on local GPU model"""
-    system = "You are an expert in student misconceptions. You output ONLY valid JSON, no markdown, no other text. IMPORTANT: Do not use LaTeX or backslashes for math. Use plain text."
+    system = "You are an expert in student misconceptions. You output ONLY valid JSON, no markdown, no other text. IMPORTANT: Wrap ALL mathematical expressions and variables in single dollar signs (e.g., $x = 5$ or $\\frac{1}{2}$)."
     
     user = f"""Generate 3 plausible wrong answers for this math question. Each wrong answer should reflect a common student mistake.
 
@@ -143,6 +143,12 @@ Generate the JSON object for the distractors now:"""
     response, in_t, out_t = generate_chat(system, user, max_tokens=1000)
     try:
         data = extract_json_from_text(response)
+        if "distractors" in data and isinstance(data["distractors"], list):
+            while len(data["distractors"]) < 3:
+                data["distractors"].append({
+                    "distractor_text": "None of the above",
+                    "misconception": "Generic incorrect option due to generation failure."
+                })
     except Exception as e:
         print(f"\n--- RAW QWEN AGENT 2 OUTPUT ---\n{response}\n------------------------------\n")
         raise e
