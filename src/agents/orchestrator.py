@@ -19,7 +19,7 @@ def compare_models(topic: str) -> dict:
             gemini_latency = time.time() - start_time
             mcq_json = gemini_result.model_dump_json(indent=2)
             try:
-                gemini_scores = evaluate_mcq(raw_context, mcq_json)
+                gemini_scores = evaluate_mcq(topic, raw_context, mcq_json)
             except Exception as judge_err:
                 print(f"Judge failed for Gemini: {judge_err}")
                 gemini_scores = {"hallucination_score": 0, "logic_score": 0, "plausibility_score": 0, "feedback": f"Judge Error: {judge_err}"}
@@ -51,7 +51,7 @@ def compare_models(topic: str) -> dict:
             qwen_latency = time.time() - start_time
             mcq_json = qwen_result.model_dump_json(indent=2)
             try:
-                qwen_scores = evaluate_mcq(raw_context, mcq_json)
+                qwen_scores = evaluate_mcq(topic, raw_context, mcq_json)
             except Exception as judge_err:
                 print(f"Judge failed for Qwen: {judge_err}")
                 qwen_scores = {"hallucination_score": 0, "logic_score": 0, "plausibility_score": 0, "feedback": f"Judge Error: {judge_err}"}
