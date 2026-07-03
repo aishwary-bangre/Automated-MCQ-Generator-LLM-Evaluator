@@ -25,11 +25,13 @@ def load_model():
         
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         
-        # 1.5B params in float16 = ~3GB, fits in 4GB GTX 1650
+        # 1.5B params in float16 = ~1GB. We FORCE it to 'cuda' to stop 'auto' from offloading to slow RAM.
+        # We also enable 'sdpa' (Scaled Dot Product Attention) to drastically speed up generation.
         model = AutoModelForCausalLM.from_pretrained(
             MODEL_NAME, 
-            dtype=torch.float16,
-            device_map="auto",
+            torch_dtype=torch.float16,
+            device_map="cuda", 
+            attn_implementation="sdpa",
             low_cpu_mem_usage=True
         )
         print("Model loaded successfully on GPU!")
