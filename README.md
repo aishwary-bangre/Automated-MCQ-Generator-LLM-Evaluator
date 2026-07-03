@@ -16,7 +16,7 @@ An automated pipeline that generates multiple-choice questions (MCQs) and distra
 
 ## Hardware Optimization
 This project was strictly constrained to run on a **GTX 1650 with 4GB VRAM**.
-- The `Qwen2.5-0.5B-Instruct` model is loaded locally via HuggingFace `transformers` using `torch.float16`, `device_map="auto"`, and `low_cpu_mem_usage=True` to prevent CUDA Out-of-Memory crashes.
+- The `Qwen2.5-0.5B-Instruct` model is loaded locally via HuggingFace `transformers` using `torch.float16`, `device_map="cuda"`, `attn_implementation="sdpa"`, and `low_cpu_mem_usage=True` to maximize inference speed and prevent CUDA Out-of-Memory crashes.
 - The `HF_HOME` cache is forcibly migrated to a secondary drive to prevent Windows Paging File exhaustion (`os error 1455`) during tensor allocation.
 
 ## Setup Instructions

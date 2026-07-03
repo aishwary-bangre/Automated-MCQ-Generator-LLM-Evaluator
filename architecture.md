@@ -70,9 +70,9 @@ graph TD
 ### 2. Dual-Model Execution Engine & Multi-Agent Framework
 - **Purpose**: To route the same generation tasks to two different models for comparative benchmarking in parallel. 
 - **Execution Paths** (Executed Concurrently via `concurrent.futures.ThreadPoolExecutor`):
-  - **Local Pipeline (Qwen2.5-0.5B-Instruct)**: Runs locally via HuggingFace `transformers`. Executes both the Educator (Agent 1) and Misconception Specialist (Agent 2) locally in fp16 to optimize for Edge Hardware limitations.
+  - **Local Pipeline (Qwen2.5-0.5B-Instruct)**: Runs locally via HuggingFace `transformers`. Executes both the Educator (Agent 1) and Misconception Specialist (Agent 2) locally in fp16, leveraging strict GPU VRAM mapping and PyTorch's Scaled Dot Product Attention (SDPA) to optimize generation speed on Edge Hardware.
   - **Cloud Pipeline (Gemini Flash)**: Runs via the Google GenAI SDK. Executes both the Educator (Agent 1) and Misconception Specialist (Agent 2) via the cloud API.
-- **Enforcement**: Both pipelines utilize Pydantic schemas to strictly validate and parse the agent responses into a deterministic JSON structure. A custom Regex JSON sanitization step runs on the local model to handle escaped backslashes from LaTeX math. Graceful Fallback UIs are triggered in case of timeouts or out-of-memory errors.
+- **Enforcement**: Both pipelines utilize Pydantic schemas to strictly validate and parse the agent responses into a deterministic JSON structure. A custom Regex JSON sanitization step runs on the local model to handle escaped backslashes from LaTeX math. The local pipeline also includes dynamic list-padding fallbacks to prevent Pydantic crashes if the small model generates the wrong number of distractors. Graceful Fallback UIs are triggered in case of timeouts or out-of-memory errors.
 
 ### 3. Benchmarking & Evaluation Suite
 - **Purpose**: To programmatically assess the performance differences between the local open-source model and the commercial cloud model, ensuring a 0% hallucination rate.
