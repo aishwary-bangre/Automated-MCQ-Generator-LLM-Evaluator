@@ -38,12 +38,3 @@ for name, code in chapters.items():
         print(f"Saved to {file_path}")
     else:
         print(f"Failed to download {name}")
-        # Try alternate code for Probability if it fails (it used to be 15)
-        if name == "Probability" and code == "14":
-            print("Trying alternate chapter code 15 for Probability...")
-            url = base_url.format("15")
-            success = download_file(url, file_path)
-            if success:
-                print(f"Saved {name} using alt code to {file_path}")
-            else:
-                print(f"Failed again")
