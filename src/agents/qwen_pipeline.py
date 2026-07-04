@@ -31,8 +31,7 @@ def load_model():
             MODEL_NAME, 
             torch_dtype=torch.float16,
             device_map="cuda", 
-            attn_implementation="sdpa",
-            low_cpu_mem_usage=True
+            attn_implementation="sdpa"
         )
         print("Model loaded successfully on GPU!")
 
