@@ -26,8 +26,29 @@ def run_agent_1(topic: str, context: str, client: genai.Client):
     return EducatorOutput(**data), response.usage_metadata.prompt_token_count, response.usage_metadata.candidates_token_count
 
 def run_agent_2(educator_output: EducatorOutput, client: genai.Client):
-    system_instruction = "You are an expert in student misconceptions. You must output ONLY valid JSON. IMPORTANT: Wrap ALL mathematical expressions, equations, and variables in single dollar signs for inline markdown rendering (e.g., $x = 5$ or $\\frac{1}{2}$)."
-    prompt = f'Generate 3 plausible wrong answers for this math question based on common mistakes.\n\nQuestion: {educator_output.question}\nCorrect Answer: {educator_output.correct_answer_text}\n\nOutput JSON format:\n{{\n  "distractors": [\n    {{"distractor_text": "wrong 1", "misconception": "reason 1"}},\n    {{"distractor_text": "wrong 2", "misconception": "reason 2"}},\n    {{"distractor_text": "wrong 3", "misconception": "reason 3"}}\n  ]\n}}'
+    system_instruction = (
+        "You are an expert Educational Psychologist and Misconception Specialist. "
+        "Your sole task is to analyze mathematical questions and engineer highly plausible, tricky distractors (wrong answers) "
+        "that specifically target common cognitive errors, sign swaps, and procedural mistakes made by 10th-grade students. "
+        "You must output ONLY valid JSON. IMPORTANT: Wrap ALL mathematical expressions, equations, and variables in single dollar signs for inline markdown rendering (e.g., $x = 5$ or $\\frac{1}{2}$)."
+    )
+    prompt = (
+        "Analyze the following math question and its correct answer. Generate exactly 3 plausible distractors.\n\n"
+        "Guidelines for Distractors:\n"
+        "1. Calculation Error: One distractor should stem from a simple arithmetic or formula application error.\n"
+        "2. Conceptual Error: One distractor should stem from misunderstanding the core concept (e.g., applying the wrong formula).\n"
+        "3. Sign/Order Error: One distractor should stem from dropping a negative sign or mixing up the order of operations.\n\n"
+        f"Question: {educator_output.question}\n"
+        f"Correct Answer: {educator_output.correct_answer_text}\n\n"
+        "Output JSON format:\n"
+        "{\n"
+        '  "distractors": [\n'
+        '    {"distractor_text": "wrong 1", "misconception": "Detailed pedagogical explanation of the specific error made"},\n'
+        '    {"distractor_text": "wrong 2", "misconception": "Detailed pedagogical explanation of the specific error made"},\n'
+        '    {"distractor_text": "wrong 3", "misconception": "Detailed pedagogical explanation of the specific error made"}\n'
+        "  ]\n"
+        "}"
+    )
 
     response = client.models.generate_content(
         model='gemini-3.5-flash',

@@ -123,9 +123,19 @@ Generate the JSON object for "{topic}" now:"""
 
 def run_local_agent_2(educator_output: EducatorOutput):
     """Agent 2: Specialist Pipeline on local GPU model"""
-    system = "You are an expert in student misconceptions. You output ONLY valid JSON, no markdown, no other text. IMPORTANT: Wrap ALL mathematical expressions and variables in single dollar signs (e.g., $x = 5$ or $\\frac{1}{2}$)."
+    system = (
+        "You are an expert Educational Psychologist and Misconception Specialist. "
+        "Your sole task is to analyze mathematical questions and engineer highly plausible, tricky distractors (wrong answers) "
+        "that specifically target common cognitive errors, sign swaps, and procedural mistakes made by 10th-grade students. "
+        "You output ONLY valid JSON, no markdown, no other text. IMPORTANT: Wrap ALL mathematical expressions and variables in single dollar signs (e.g., $x = 5$ or $\\frac{1}{2}$)."
+    )
     
-    user = f"""Generate 3 plausible wrong answers for this math question. Each wrong answer should reflect a common student mistake.
+    user = f"""Analyze the following math question and its correct answer. Generate exactly 3 plausible distractors.
+
+Guidelines for Distractors:
+1. Calculation Error: One distractor should stem from a simple arithmetic or formula application error.
+2. Conceptual Error: One distractor should stem from misunderstanding the core concept (e.g., applying the wrong formula).
+3. Sign/Order Error: One distractor should stem from dropping a negative sign or mixing up the order of operations.
 
 Question: {educator_output.question}
 Correct Answer: {educator_output.correct_answer_text}
@@ -133,9 +143,9 @@ Correct Answer: {educator_output.correct_answer_text}
 You must output a single JSON object. Here is an EXAMPLE of the format you must use (do NOT copy this content, only the format):
 {{
   "distractors": [
-    {{"distractor_text": "wrong 1", "misconception": "reason 1"}},
-    {{"distractor_text": "wrong 2", "misconception": "reason 2"}},
-    {{"distractor_text": "wrong 3", "misconception": "reason 3"}}
+    {{"distractor_text": "wrong 1", "misconception": "Detailed pedagogical explanation of the specific error made"}},
+    {{"distractor_text": "wrong 2", "misconception": "Detailed pedagogical explanation of the specific error made"}},
+    {{"distractor_text": "wrong 3", "misconception": "Detailed pedagogical explanation of the specific error made"}}
   ]
 }}
 
